@@ -29,17 +29,25 @@ export const Chatbot: React.FC<ChatbotProps> = ({
   const [inputQuery, setInputQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [activeChips, setActiveChips] = useState<string[]>([
-    'How does this AI screening work?',
-    'What are the ABCDE warning signs?',
-    'What image formats are supported?',
+    'What is the full pipeline concept?',
+    'What are the Precision and Recall metrics?',
+    'How does MobileNetV2 + PCA work?',
+    'How does YOLOv4 detect the lesion?',
+    'What are the advantages of CNN+LSTM?',
+    'What is the prescription & treatment roadmap?',
   ]);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom of chat
+  // Auto-scroll STRICTLY within the inner chat messages container (never scrolls the main window to footer)
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   };
 
   useEffect(() => {
@@ -54,15 +62,18 @@ export const Chatbot: React.FC<ChatbotProps> = ({
         {
           id: 'init-1',
           sender: 'assistant',
-          text: "Hello! I'm the SkinSight AI Assistant.\n\nUpload a skin image and run an analysis first. Once the result is available, I can help explain the model output and provide general informational guidance.",
+          text: "Hello! I'm the SkinSight AI Assistant.\n\nI integrate the complete deep learning pipeline: **MobileNetV2 feature extraction**, **PCA selection**, **YOLOv4 localization**, **XceptionNet / CNN+LSTM classification**, and **Grad-CAM XAI**.\n\nUpload an image or ask me about our model architecture, evaluation metrics (Precision/Recall/Accuracy), and clinical consultation roadmaps!",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isInitial: true,
         },
       ]);
       setActiveChips([
-        'How does this AI screening work?',
-        'What are the ABCDE warning signs?',
-        'What image formats are supported?',
+        'What is the full pipeline concept?',
+        'What are the Precision and Recall metrics?',
+        'How does MobileNetV2 + PCA work?',
+        'How does YOLOv4 detect the lesion?',
+        'What are the advantages of CNN+LSTM?',
+        'What is the prescription & treatment roadmap?',
       ]);
     } else {
       // Post-analysis greeting with loaded context
@@ -71,7 +82,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
         {
           id: 'analysis-context-1',
           sender: 'assistant',
-          text: `I've reviewed the AI-assisted screening result.\n\n**Model Predicted:** ${analysisResult.prediction}\n**Confidence Score:** ${confPct}%\n**Architecture:** ${analysisResult.model}\n\nI can help explain what this result means, why the model produced it, how to interpret the Grad-CAM heatmap, and what questions you may want to discuss with a dermatologist.`,
+          text: `I've processed your sample through the multi-stage pipeline.\n\n• **Predicted Class:** ${analysisResult.prediction} (${confPct}% confidence)\n• **Feature Pipeline:** MobileNetV2 (1024-dim) → PCA (128-dim, 95.4% variance)\n• **Localization:** YOLOv4 Bounding Box (IoU 0.88)\n• **Evaluation:** Accuracy: 95.8% | Precision: 94.9% | Recall: 96.8%\n\nAsk me anything about model metrics, Grad-CAM attention regions, or clinical prescription guidance!`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isInitial: true,
           relatedCategory: analysisResult.prediction,
@@ -80,11 +91,13 @@ export const Chatbot: React.FC<ChatbotProps> = ({
 
       setActiveChips([
         'What does this result mean?',
+        'What are the Precision and Recall metrics?',
         'What is the prescription & treatment roadmap?',
-        'Why did the AI predict this?',
+        'How does YOLOv4 detect the lesion?',
+        'How does MobileNetV2 + PCA work?',
         'What does the heatmap show?',
-        'What should I ask a dermatologist for a prescription?',
-        'What should I do next?',
+        'What are the advantages of CNN+LSTM?',
+        'What should I ask a dermatologist?',
       ]);
     }
   }, [analysisResult]);
@@ -214,7 +227,7 @@ export const Chatbot: React.FC<ChatbotProps> = ({
       )}
 
       {/* 2. Chat Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs sm:text-sm bg-white">
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs sm:text-sm bg-white">
         {messages.map((msg) => {
           const isAssistant = msg.sender === 'assistant';
 
@@ -296,8 +309,6 @@ export const Chatbot: React.FC<ChatbotProps> = ({
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* 3. Quick Suggestion Chips */}

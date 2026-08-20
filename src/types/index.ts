@@ -6,6 +6,34 @@ export interface CategoryProbability {
   nature: 'Benign' | 'Pre-malignant' | 'Requires Clinical Evaluation' | 'Indeterminate';
 }
 
+export interface ModelBenchmarkMetric {
+  name: string;
+  architecture: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  specificity: number;
+  latencyMs: number;
+  keyStrength: string;
+}
+
+export interface YoloDetectionBox {
+  x: number; // % from left
+  y: number; // % from top
+  width: number; // % width
+  height: number; // % height
+  label: string;
+  confidence: number;
+}
+
+export interface PcaFeatureMetadata {
+  rawFeatureDimensions: number;
+  selectedComponents: number;
+  explainedVarianceRatio: number; // e.g. 0.954 (95.4%)
+  topComponentsContribution: string[];
+}
+
 export interface SkinAnalysisResult {
   id: string;
   prediction: string;
@@ -22,6 +50,16 @@ export interface SkinAnalysisResult {
   heatmapDataUrl?: string;
   originalImageUrl: string;
   imageDimensions: { width: number; height: number };
+  yoloDetection?: YoloDetectionBox;
+  pcaMetadata?: PcaFeatureMetadata;
+  evaluationMetrics?: {
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+    specificity: number;
+  };
+  benchmarkComparisons?: ModelBenchmarkMetric[];
   imageQuality: {
     status: 'Good' | 'Fair' | 'Poor';
     message: string;

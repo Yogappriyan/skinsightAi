@@ -71,11 +71,6 @@ export default function App() {
 
   const handleAskChatbot = (query?: string) => {
     setExternalChatTrigger(query || 'What does this result mean?');
-    // On mobile, scroll chat into view smoothly
-    const chatElement = document.getElementById('chatbot-workspace');
-    if (chatElement) {
-      chatElement.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   return (
@@ -92,11 +87,11 @@ export default function App() {
       {/* 3. Main Workspace Grid */}
       <main
         id="screening-workspace"
-        className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12"
+        className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-6"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* Left Column (7 cols): Upload -> Progress -> Result Card */}
-          <div className="lg:col-span-7 flex flex-col gap-6">
+          <div className="lg:col-span-7 flex flex-col gap-5">
             {!analysisResult && !isAnalyzing && (
               <ImageUploader
                 onImageSelected={handleImageSelected}
