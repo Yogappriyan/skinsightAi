@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ImageUploader } from './components/ImageUploader';
@@ -18,6 +18,9 @@ export default function App() {
     presetId?: string;
   } | null>(null);
 
+  const currentImageRef = useRef<string | null>(null);
+  const currentFileInfoRef = useRef<{ name: string; size: string; presetId?: string } | null>(null);
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<SkinAnalysisResult | null>(null);
   const [isHeatmapModalOpen, setIsHeatmapModalOpen] = useState(false);
@@ -25,15 +28,23 @@ export default function App() {
 
   const handleImageSelected = (
     imageDataUrl: string,
-    info: { name: string; size: string; presetId?: string }
+    info: { name: string; size: string; presetId?: string },
+    immediateAnalyze?: boolean
   ) => {
+    currentImageRef.current = imageDataUrl;
+    currentFileInfoRef.current = info;
     setSelectedImage(imageDataUrl);
     setFileInfo(info);
     // Reset previous analysis result when new image is picked
     setAnalysisResult(null);
+    if (immediateAnalyze) {
+      setIsAnalyzing(true);
+    }
   };
 
   const handleClearImage = () => {
+    currentImageRef.current = null;
+    currentFileInfoRef.current = null;
     setSelectedImage(null);
     setFileInfo(null);
     setAnalysisResult(null);
@@ -41,17 +52,23 @@ export default function App() {
   };
 
   const handleStartAnalysis = async () => {
-    if (!selectedImage) return;
+    const img = currentImageRef.current || selectedImage;
+    if (!img) return;
     setIsAnalyzing(true);
   };
 
   // Called when the step-by-step progress animation finishes
   const handleProgressComplete = async () => {
-    if (!selectedImage) return;
+    const img = currentImageRef.current || selectedImage;
+    const info = currentFileInfoRef.current || fileInfo;
+    if (!img) {
+      setIsAnalyzing(false);
+      return;
+    }
     try {
-      const result = await analyzeSkinImage(selectedImage, {
-        fileName: fileInfo?.name,
-        presetId: fileInfo?.presetId,
+      const result = await analyzeSkinImage(img, {
+        fileName: info?.name,
+        presetId: info?.presetId,
       });
       setAnalysisResult(result);
     } catch (err) {
@@ -62,6 +79,8 @@ export default function App() {
   };
 
   const handleResetAll = () => {
+    currentImageRef.current = null;
+    currentFileInfoRef.current = null;
     setSelectedImage(null);
     setFileInfo(null);
     setAnalysisResult(null);
@@ -123,6 +142,9 @@ export default function App() {
               analysisResult={analysisResult}
               externalQueryTrigger={externalChatTrigger}
               onClearTrigger={() => setExternalChatTrigger(null)}
+              onImageUpload={(imageDataUrl, info) => {
+                handleImageSelected(imageDataUrl, info, true);
+              }}
             />
           </div>
         </div>

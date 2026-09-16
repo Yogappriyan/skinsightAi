@@ -34,12 +34,26 @@ export interface PcaFeatureMetadata {
   topComponentsContribution: string[];
 }
 
+export interface PredictionSuggestion {
+  rank: number; // 1 to 4
+  diseaseName: string;
+  shortName: string;
+  categoryCode: string;
+  confidenceScore: number;
+  percentage: number;
+  nature: 'Benign' | 'Requires Clinical Evaluation' | 'Monitoring Recommended' | 'Pre-malignant' | 'Inflammatory / Chronic Care';
+  clinicalStatus: 'Primary Prediction' | 'Secondary Suggestion' | 'Alternative Suggestion' | 'Differential Consideration';
+  reasonForSuggestion: string;
+  hallmarks: string[];
+}
+
 export interface SkinAnalysisResult {
   id: string;
   prediction: string;
   categoryCode: string;
   nature: 'Benign' | 'Requires Clinical Evaluation' | 'Monitoring Recommended';
   confidence: number; // 0 to 1, e.g. 0.87
+  topFourSuggestions: PredictionSuggestion[];
   probabilities: CategoryProbability[];
   model: string;
   modelVersion: string;
@@ -89,6 +103,8 @@ export interface ChatMessage {
   timestamp: string;
   isInitial?: boolean;
   relatedCategory?: string;
+  imageUrl?: string;
+  analysisResult?: Partial<SkinAnalysisResult>;
 }
 
 export interface SamplePreset {
